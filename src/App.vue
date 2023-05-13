@@ -1,11 +1,21 @@
 <template>
   <div class="app">
     <h1>Страница с постами</h1>
-    <my-button @click="showDialog" style="margin: 15px">Создать пост</my-button>
+    <my-input v-model="searchQuerry" />
+    <div class="app__btns">
+      <my-button @click="showDialog" style="margin: 15px"
+        >Создать пост</my-button
+      >
+      <my-select v-model="selectedSort" :options="sortOptions" />
+    </div>
     <my-dialog v-model:show="dialogVisible"
       ><post-form @create="createPost"
     /></my-dialog>
-    <post-list :posts="posts" @remove="removePost" v-if="!isPostLoading" />
+    <post-list
+      :posts="sortedPosts"
+      @remove="removePost"
+      v-if="!isPostLoading"
+    />
     <div v-else>Идёт загрузка...</div>
   </div>
 </template>
@@ -22,6 +32,12 @@ export default {
       posts: [],
       dialogVisible: false,
       isPostLoading: false,
+      selectedSort: "",
+      searchQuerry: "",
+      sortOptions: [
+        { value: "title", name: "по названию" },
+        { value: "body", name: "по содержимому" },
+      ],
     };
   },
   methods: {
@@ -52,6 +68,13 @@ export default {
   mounted() {
     this.fetchPosts();
   },
+  computed: {
+    sortedPosts() {
+      return [...this.posts].sort((post1, post2) =>
+        post1[this.selectedSort]?.localeCompare(post2[this.selectedSort])
+      );
+    },
+  },
 };
 </script>
 
@@ -64,5 +87,11 @@ export default {
 
 .app {
   padding: 20px;
+}
+
+.app__btns {
+  margin: 15px;
+  display: flex;
+  justify-content: space-between;
 }
 </style>
